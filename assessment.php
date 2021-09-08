@@ -79,4 +79,44 @@
 				}
 			}
 		}
+		
+		
+		//fetching array of country
+
+		$country_query = "select distinct(Country) from customer";
+		$country_result = $con->query($country_query);
+		$scountry = $country_result->fetch_all();
+
+
+
+		//creating countrywise table
+
+		foreach($scountry as $val){
+
+			//checking for array if not then creating a country table
+			if(gettype($val[0]) != array()){
+				$val_c = "create table if not exists $val[0]
+					(Customer_Name varchar(255) primary key not null, 
+					Customer_Id varchar(18) not null,
+						Open_Date date not null,
+						Last_Consulted_Date date,
+						Vaccination_Id char(5),
+						Dr_Name char(255),
+						State char(5),
+						Country char(5),
+						post_code int(5),
+						DOB date,
+						Is_Active char(1)
+					)";
+				$con->query($val_c) or die("Error ");
+				 
+				//insering data from customer into country table using country 
+				$result_insert_country = $con->prepare("INSERT INTO $val[0] SELECT * FROM customer where Country='$val[0]'") or die("error in country seperated table result");
+					$result_insert_country->execute();	
+				
+			}
+
+		
+
+		}
 ?>
